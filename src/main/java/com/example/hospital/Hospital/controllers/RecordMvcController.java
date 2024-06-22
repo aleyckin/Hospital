@@ -1,7 +1,7 @@
 package com.example.hospital.Hospital.controllers;
 
-import com.example.hospital.Hospital.controllers.models.enums.Place;
-import com.example.hospital.Hospital.controllers.models.enums.Status;
+import com.example.hospital.Hospital.models.enums.Place;
+import com.example.hospital.Hospital.models.enums.Status;
 import com.example.hospital.Hospital.services.DoctorService;
 import com.example.hospital.Hospital.services.RecordService;
 import com.example.hospital.Hospital.services.UserService;

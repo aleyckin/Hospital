@@ -1,4 +1,4 @@
-package com.example.hospital.Hospital.controllers.models.enums;
+package com.example.hospital.Hospital.models.enums;
 
 import org.springframework.security.core.GrantedAuthority;
 

@@ -1,7 +1,7 @@
 package com.example.hospital;
 
 import com.example.hospital.Hospital.controllers.UserController;
-import com.example.hospital.Hospital.controllers.models.enums.UserRole;
+import com.example.hospital.Hospital.models.enums.UserRole;
 import com.example.hospital.Hospital.services.UserService;
 import com.example.hospital.JWT.JwtFilter;
 import org.slf4j.Logger;

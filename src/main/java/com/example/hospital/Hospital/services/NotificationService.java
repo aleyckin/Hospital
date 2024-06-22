@@ -1,8 +1,8 @@
 package com.example.hospital.Hospital.services;
 
 import com.example.hospital.Hospital.controllers.NotificationDTO;
-import com.example.hospital.Hospital.controllers.models.Notification;
-import com.example.hospital.Hospital.controllers.models.enums.Status;
+import com.example.hospital.Hospital.models.Notification;
+import com.example.hospital.Hospital.models.enums.Status;
 import com.example.hospital.Hospital.repository.NotificationRepository;
 import com.example.hospital.Util.Validation.ValidatorUtil;
 import org.springframework.beans.factory.annotation.Autowired;

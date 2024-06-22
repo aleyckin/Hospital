@@ -1,8 +1,8 @@
 package com.example.hospital.Hospital.services;
 
 import com.example.hospital.Hospital.controllers.DoctorDTO;
-import com.example.hospital.Hospital.controllers.models.Doctor;
-import com.example.hospital.Hospital.controllers.models.enums.Place;
+import com.example.hospital.Hospital.models.Doctor;
+import com.example.hospital.Hospital.models.enums.Place;
 import com.example.hospital.Hospital.repository.DoctorRepository;
 import com.example.hospital.Util.Validation.ValidatorUtil;
 import org.springframework.beans.factory.annotation.Autowired;

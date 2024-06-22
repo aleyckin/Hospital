@@ -8,7 +8,7 @@
                 <input class="password-input form-control" v-model="password" id="password" required="" validate="false" placeholder="Пароль" type="password" name="Пароль">
             </div>
             <div class="form__mail">
-                <input class="mail-input form-control" v-model="mail" id="mail" required="" validate="false" placeholder="Почта" type="text" name="Почта">
+                <input class="mail-input form-control" v-model="mail" id="mail" required="" validate="false" placeholder="Почта" type="email" name="Почта">
             </div>
             <div class="form__phoneNumber">
                 <input class="phoneNumber-input form-control" v-model="phoneNumber" id="phoneNumber" required="" validate="false" placeholder="Мобильный телефон" type="text" name="Номер телефона">
@@ -32,7 +32,10 @@ export default {
     },
     methods:{
         registration(){
-            // Отправляем данные формы на сервер
+            if (!this.validatePhoneNumber(this.phoneNumber)) {
+                alert('Пожалуйста, введите корректный номер телефона.');
+                return;
+            }
             let user = {
                 login: this.login,
                 password: this.password,
@@ -50,6 +53,10 @@ export default {
                     console.log(error);
                 });
             this.$router.push('/login');
+        },
+        validatePhoneNumber(phoneNumber) {
+            const phoneRegex = /^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$$/im;
+            return phoneRegex.test(phoneNumber);
         }
     }
 }

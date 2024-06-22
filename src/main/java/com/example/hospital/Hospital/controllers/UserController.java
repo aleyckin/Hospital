@@ -1,7 +1,7 @@
 package com.example.hospital.Hospital.controllers;
 
-import com.example.hospital.Hospital.controllers.models.User;
-import com.example.hospital.Hospital.controllers.models.enums.UserRole;
+import com.example.hospital.Hospital.models.User;
+import com.example.hospital.Hospital.models.enums.UserRole;
 import com.example.hospital.Hospital.services.UserService;
 import com.example.hospital.Util.Validation.ValidationException;
 import jakarta.validation.Valid;
@@ -15,6 +15,7 @@ public class UserController {
     public static final String URL_LOGIN = "/jwt/login";
     public static final String URL_SIGN_UP = "/sign_up";
     public static final String URL_WHO_AM_I = "/who_am_i";
+
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -42,10 +43,16 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    @Secured({UserRole.AsString.ADMIN})
-    public UserDTO getUser(@PathVariable Long id) {
-        return new UserDTO(userService.findUser(id));
+    @GetMapping("profile/{login}")
+    @Secured({UserRole.AsString.ADMIN, UserRole.AsString.USER})
+    public UserDTO getUser(@PathVariable String login) {
+        User user = userService.findByLogin(login);
+        UserDTO userDto = new UserDTO();
+        userDto.setId(user.getId());
+        userDto.setLogin(user.getLogin());
+        userDto.setMail(user.getMail());
+        userDto.setPhoneNumber(user.getPhoneNumber());
+        return userDto;
     }
 
     @GetMapping("/")
@@ -56,7 +63,7 @@ public class UserController {
                 .toList();
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("profile/{login}")
     public UserDTO updateUser(@RequestBody @Valid UserDTO userDto){
         return new UserDTO(userService.updateUser(userDto));
     }

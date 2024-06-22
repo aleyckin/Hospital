@@ -2,8 +2,8 @@ package com.example.hospital.Hospital.services;
 
 import com.example.hospital.Hospital.controllers.UserDTO;
 import com.example.hospital.Hospital.controllers.UserSignUpDTO;
-import com.example.hospital.Hospital.controllers.models.User;
-import com.example.hospital.Hospital.controllers.models.enums.UserRole;
+import com.example.hospital.Hospital.models.User;
+import com.example.hospital.Hospital.models.enums.UserRole;
 import com.example.hospital.Hospital.repository.UserRepository;
 import com.example.hospital.JWT.JwtException;
 import com.example.hospital.JWT.JwtProvider;
@@ -39,7 +39,8 @@ public class UserService implements UserDetailsService {
     }
 
     public User findByLogin(String login) {
-        return userRepository.findOneByLoginIgnoreCase(login);
+        User example = userRepository.findOneByLoginIgnoreCase(login);
+        return example;
     }
     public Page<User> findAllPages(int page, int size) {
         return userRepository.findAll(PageRequest.of(page - 1, size, Sort.by("id").ascending()));
@@ -82,13 +83,16 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public User updateUser(UserDTO userDTO) {
-        final User currentUser = findUser(userDTO.getId());
+        final User currentUser = findByLogin(userDTO.getLogin());
         currentUser.setLogin(userDTO.getLogin());
-        currentUser.setPassword(userDTO.getPassword());
+        currentUser.setPassword(passwordEncoder.encode((userDTO.getPassword())));
+        currentUser.setMail(userDTO.getMail());
+        currentUser.setPhoneNumber(userDTO.getPhoneNumber());
         return userRepository.save(currentUser);
     }
+
     @Transactional
-    public User updateUser(Long id,String login, String password) {
+    public User updateUser(Long id, String login, String password) {
         if (!StringUtils.hasText(login) || !StringUtils.hasText(password)) {
             throw new IllegalArgumentException("User name, login or password is null or empty");
         }

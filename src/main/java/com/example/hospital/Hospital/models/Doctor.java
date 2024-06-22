@@ -1,7 +1,7 @@
-package com.example.hospital.Hospital.controllers.models;
+package com.example.hospital.Hospital.models;
 
 import com.example.hospital.Hospital.controllers.DoctorDTO;
-import com.example.hospital.Hospital.controllers.models.enums.Place;
+import com.example.hospital.Hospital.models.enums.Place;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 

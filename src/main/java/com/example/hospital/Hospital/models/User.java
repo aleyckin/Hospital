@@ -1,7 +1,7 @@
-package com.example.hospital.Hospital.controllers.models;
+package com.example.hospital.Hospital.models;
 
 import com.example.hospital.Hospital.controllers.UserSignUpDTO;
-import com.example.hospital.Hospital.controllers.models.enums.UserRole;
+import com.example.hospital.Hospital.models.enums.UserRole;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.*;

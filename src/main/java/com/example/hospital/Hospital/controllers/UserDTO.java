@@ -1,7 +1,7 @@
 package com.example.hospital.Hospital.controllers;
 
-import com.example.hospital.Hospital.controllers.models.User;
-import com.example.hospital.Hospital.controllers.models.enums.UserRole;
+import com.example.hospital.Hospital.models.User;
+import com.example.hospital.Hospital.models.enums.UserRole;
 
 public class UserDTO {
     private long id;

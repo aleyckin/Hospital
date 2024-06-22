@@ -30,17 +30,17 @@ public class DoctorMvcController {
     public String updateDoctor(@PathVariable(required = false) Long id,
                                  Model model) {
         if (id == null || id <= 0) {
-            model.addAttribute("doctorDto", new DoctorDTO());
+            model.addAttribute("doctorDTO", new DoctorDTO());
         } else {
-            model.addAttribute("doctorDto", id);
-            model.addAttribute("doctorDto", new DoctorDTO(doctorService.findDoctor(id)));
+            model.addAttribute("doctorDTO", id);
+            model.addAttribute("doctorDTO", new DoctorDTO(doctorService.findDoctor(id)));
         }
         return "doctor-update";
     }
 
     @PostMapping(value = {"/", "/{id}"})
     public String saveDoctor(@PathVariable(required = false) Long id,
-                               @ModelAttribute("doctorDto") DoctorDTO doctorDTO,
+                               @ModelAttribute("doctorDTO") DoctorDTO doctorDTO,
                                BindingResult bindingResult,
                                Model model) throws IOException {
         if (bindingResult.hasErrors()) {

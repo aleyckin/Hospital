@@ -1,7 +1,7 @@
 package com.example.hospital.Hospital.controllers;
 
-import com.example.hospital.Hospital.controllers.models.Doctor;
-import com.example.hospital.Hospital.controllers.models.enums.Place;
+import com.example.hospital.Hospital.models.Doctor;
+import com.example.hospital.Hospital.models.enums.Place;
 
 public class DoctorDTO {
     private Long id;

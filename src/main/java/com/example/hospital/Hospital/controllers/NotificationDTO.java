@@ -1,7 +1,7 @@
 package com.example.hospital.Hospital.controllers;
 
-import com.example.hospital.Hospital.controllers.models.Notification;
-import com.example.hospital.Hospital.controllers.models.enums.Status;
+import com.example.hospital.Hospital.models.Notification;
+import com.example.hospital.Hospital.models.enums.Status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class NotificationDTO {

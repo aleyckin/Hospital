@@ -1,8 +1,8 @@
-package com.example.hospital.Hospital.controllers.models;
+package com.example.hospital.Hospital.models;
 
 import com.example.hospital.Hospital.controllers.RecordDTO;
-import com.example.hospital.Hospital.controllers.models.enums.Place;
-import com.example.hospital.Hospital.controllers.models.enums.Status;
+import com.example.hospital.Hospital.models.enums.Place;
+import com.example.hospital.Hospital.models.enums.Status;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 
