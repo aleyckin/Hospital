@@ -52,7 +52,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("profile/{login}")
+    @GetMapping(URL_PROFILE + "/{login}")
     @Secured({UserRole.AsString.ADMIN, UserRole.AsString.USER})
     public UserDTO getUser(@PathVariable String login) {
         User user = userService.findByLogin(login);
@@ -72,7 +72,7 @@ public class UserController {
                 .toList();
     }
 
-    @PutMapping("profile/{login}")
+    @PutMapping(URL_PROFILE + "/{login}")
     public UserDTO updateUser(@RequestBody @Valid UserDTO userDto){
         return new UserDTO(userService.updateUser(userDto));
     }
@@ -83,53 +83,4 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-    @GetMapping("/registrationConfirm")
-    public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token) {
-        VerificationToken verificationToken = userService.getVerificationToken(token);
-        if (verificationToken == null) {
-            model.addAttribute("message", "Invalid token");
-            return "redirect:/badUser.html?lang=" + request.getLocale().getLanguage();
-        }
-
-        User user = verificationToken.getUser();
-        Calendar cal = Calendar.getInstance();
-        if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
-            model.addAttribute("message", "Token expired");
-            return "redirect:/badUser.html?lang=" + request.getLocale().getLanguage();
-        }
-
-        user.setEnabled(true);
-        userService.saveRegisteredUser(user);
-        userService.deleteVerificationToken(token);
-        return "redirect:/login.html?lang=" + request.getLocale().getLanguage();
-    }
-
-    @PostMapping("/email/reset-password/{email}")
-    public String sendResetPasswordEmail(@PathVariable String email) {
-        User user = userService.findByLogin(email);
-        if (user == null) {
-            throw new IllegalArgumentException("Пользователь с указанным email не найден");
-        }
-        String token = UUID.randomUUID().toString();
-        userService.createPasswordResetToken(user, token);
-        userService.sendPasswordResetEmail(user, token);
-        return "Ссылка для смены пароля отправлена на вашу электронную почту";
-    }
-
-    @PostMapping("/reset-password")
-    public String resetPassword(@RequestParam("token") String token, @RequestParam("newPassword") String newPassword) {
-        VerificationToken verificationToken = userService.getPasswordResetToken(token);
-        if (verificationToken == null) {
-            throw new IllegalArgumentException("Invalid token");
-        }
-
-        User user = verificationToken.getUser();
-        Calendar cal = Calendar.getInstance();
-        if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
-            throw new IllegalArgumentException("Token expired");
-        }
-
-        userService.updatePassword(user.getMail(), newPassword);
-        return "Пароль успешно изменен";
-    }
 }

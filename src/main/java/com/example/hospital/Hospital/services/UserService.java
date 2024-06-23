@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.Console;
 import java.util.*;
 
 @Service
@@ -130,17 +131,6 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void updatePassword(String email, String newPassword) {
-        User user = userRepository.findByMail(email);
-        if (user != null) {
-            user.setPassword(passwordEncoder.encode(newPassword));
-            userRepository.save(user);
-        } else {
-            throw new IllegalArgumentException("Пользователь с указанным email не найден");
-        }
-    }
-
-    @Transactional
     public User updateUser(Long id, String login, String password) {
         if (!StringUtils.hasText(login) || !StringUtils.hasText(password)) {
             throw new IllegalArgumentException("User name, login or password is null or empty");
@@ -160,6 +150,17 @@ public class UserService implements UserDetailsService {
         userRepository.deleteAll();
     }
 
+    @Transactional
+    public void updatePassword(String email, String newPassword) {
+        User user = userRepository.findByMail(email);
+        if (user != null) {
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("Пользователь с указанным email не найден");
+        }
+    }
+
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         boolean enabled = true;
         boolean accountNonExpired = true;
@@ -177,8 +178,10 @@ public class UserService implements UserDetailsService {
     public String loginAndGetToken(UserDTO userDTO) {
         final User user = findByLogin(userDTO.getLogin());
         if (user == null) {
+            throw new ValidationException("User is null.");
         }
         if (!passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
+            throw new ValidationException("Incorrect password.");
         }
         if (!user.getEnabled()) {
             throw new ValidationException("Account not activated. Please check your email for activation link.");
@@ -218,21 +221,34 @@ public class UserService implements UserDetailsService {
 
     @Transactional
     public void createPasswordResetToken(User user, String token) {
-        VerificationToken myToken = new VerificationToken(token, user);
-        tokenRepository.save(myToken);
+        try {
+            VerificationToken myToken = new VerificationToken(token, user);
+            tokenRepository.save(myToken);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
     }
 
     public void sendPasswordResetEmail(User user, String token) {
         String recipientAddress = user.getMail();
         String subject = "Сброс пароля";
         String confirmationUrl = "http://localhost:8080/reset-password?token=" + token;
-        String message = "Для сброса пароля, пожалуйста, перейдите по ссылке: " + confirmationUrl;
+        String message = "Для сброса пароля, пожалуйста, перейдите по <a href=\"" + confirmationUrl + "\">этой ссылке</a>.";
 
-        SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo(recipientAddress);
-        email.setSubject(subject);
-        email.setText(message);
-        mailSender.send(email);
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+            helper.setTo(recipientAddress);
+            helper.setSubject(subject);
+            helper.setText(message, true); // true indicates the text is HTML
+
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            // Handle error
+        }
     }
 
     @Transactional(readOnly = true)

@@ -15,7 +15,7 @@ const routes = [
     {path: "/login", component: login},
     {path: "/badUser", component: badUser},
     {path: "/registration", component: registration},
-    {path: "/resetPassword", component: resetpassword, meta: { requiresAuth: true }},
+    {path: "/reset-password", component: resetpassword, meta: { requiresAuth: true }},
     {path: "/error", component: Error, meta: { requiresAuth: true }},
 ]
 
