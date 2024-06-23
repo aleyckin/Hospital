@@ -37,6 +37,9 @@ public class User {
     @Size(min = 6, max = 64)
     private String phoneNumber;
 
+    @Column(name = "enabled")
+    private Boolean enabled;
+
     public User() {
     }
 
@@ -50,6 +53,7 @@ public class User {
         this.role = role;
         this.mail = mail;
         this.phoneNumber = phoneNumber;
+        this.enabled = false;
     }
 
     public User(UserSignUpDTO userDto){
@@ -100,6 +104,10 @@ public class User {
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
+
+    public Boolean getEnabled() { return enabled; }
+
+    public void setEnabled(Boolean enabled) { this.enabled = enabled; }
 
     @Override
     public boolean equals(Object o) {

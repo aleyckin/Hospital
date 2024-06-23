@@ -57,6 +57,7 @@ public class SecurityConfiguration {
                 .requestMatchers(HttpMethod.POST, UserController.URL_LOGIN).permitAll()
                 .requestMatchers(HttpMethod.POST, UserController.URL_SIGN_UP).permitAll()
                 .requestMatchers(HttpMethod.POST, UserController.URL_WHO_AM_I).permitAll()
+                .requestMatchers("/email/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()

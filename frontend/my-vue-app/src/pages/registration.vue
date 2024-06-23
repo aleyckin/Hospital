@@ -30,6 +30,21 @@ export default {
             phoneNumber: ""
         }
     },
+    mounted() {
+        const queryParams = new URLSearchParams(window.location.search);
+        const token = queryParams.get('token');
+        if (token) {
+            axios.get(`http://localhost:8080/registrationConfirm?token=${token}`)
+                .then(response => {
+                    alert('Регистрация подтверждена. Теперь вы можете войти в систему.');
+                    this.$router.push('/login');
+                })
+                .catch(error => {
+                    console.error(error);
+                    alert('Ошибка подтверждения регистрации.');
+                });
+        }
+    },
     methods:{
         registration(){
             if (!this.validatePhoneNumber(this.phoneNumber)) {

@@ -1,4 +1,4 @@
-package com.example.hospital;
+package com.example.hospital.Util;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

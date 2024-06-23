@@ -4,6 +4,8 @@ import users from "./pages/users.vue";
 import login from "./pages/login.vue";
 import registration from "./pages/registration.vue";
 import Error from "./pages/error.vue";
+import resetpassword from "./pages/resetpassword.vue";
+import badUser from "./pages/badUser.vue"
 import {createRouter, createWebHistory} from "vue-router"
 
 const routes = [
@@ -11,7 +13,9 @@ const routes = [
     {path: "/users", component: users, meta: { requiresAuth: true, requiresAdmin: true }},
     {path: '/profile', component: profile, meta: { requiresAuth: true }},
     {path: "/login", component: login},
+    {path: "/badUser", component: badUser},
     {path: "/registration", component: registration},
+    {path: "/resetPassword", component: resetpassword, meta: { requiresAuth: true }},
     {path: "/error", component: Error, meta: { requiresAuth: true }},
 ]
 
