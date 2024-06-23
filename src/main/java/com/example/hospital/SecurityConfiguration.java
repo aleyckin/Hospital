@@ -9,15 +9,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 
@@ -49,25 +52,23 @@ public class SecurityConfiguration {
         }
     }
 
+
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors()
-                .and()
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeHttpRequests()
-                .requestMatchers("/", SPA_URL_MASK).permitAll()
-                .requestMatchers(HttpMethod.POST, UserController.URL_LOGIN).permitAll()
-                .requestMatchers(HttpMethod.POST, UserController.URL_SIGN_UP).permitAll()
-                .requestMatchers(HttpMethod.POST, UserController.URL_WHO_AM_I).permitAll()
-                .requestMatchers("/email/**").permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+        return httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(Customizer.withDefaults())
+                .authorizeHttpRequests(c -> c
+                        .requestMatchers("/", SPA_URL_MASK).permitAll()
+                        .requestMatchers(HttpMethod.POST, UserController.URL_LOGIN).permitAll()
+                        .requestMatchers(HttpMethod.POST, UserController.URL_SIGN_UP).permitAll()
+                        .requestMatchers(HttpMethod.POST, UserController.URL_WHO_AM_I).permitAll()
+                        .requestMatchers("/email/**").permitAll()
+                        .anyRequest()
+                        .authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .anonymous();
-        return http.userDetailsService(userService).build();
+                .build();
     }
 
     @Bean
@@ -85,6 +86,22 @@ public class SecurityConfiguration {
                 .requestMatchers("/swagger-resources/**")
                 .requestMatchers("/v3/api-docs/**")
                 .requestMatchers("/h2-console/**");
+    }
+
+    @Bean
+    public HttpFirewall allowUrlEncodedSlashHttpFirewall() {
+        StrictHttpFirewall firewall = new StrictHttpFirewall();
+        firewall.setAllowUrlEncodedPercent(true);
+        firewall.setAllowUrlEncodedSlash(true);
+        firewall.setAllowUrlEncodedPeriod(true);
+        firewall.setAllowSemicolon(true);
+        firewall.setAllowBackSlash(true);
+        firewall.setAllowUrlEncodedDoubleSlash(true);
+        return firewall;
+    }
+
+    public void configure(WebSecurity web) throws Exception {
+        web.httpFirewall(allowUrlEncodedSlashHttpFirewall());
     }
 
 }

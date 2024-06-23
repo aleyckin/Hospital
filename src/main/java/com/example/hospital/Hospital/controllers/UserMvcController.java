@@ -3,6 +3,7 @@ package com.example.hospital.Hospital.controllers;
 import com.example.hospital.Hospital.models.User;
 import com.example.hospital.Hospital.models.VerificationToken;
 import com.example.hospital.Hospital.services.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,9 +13,12 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.UUID;
 
-@Controller
+@RestController
 public class UserMvcController {
     UserService userService;
+
+    @Value("${frontend.url}")
+    private String frontendURL;
 
     public UserMvcController(UserService userService) {
         this.userService = userService;
@@ -25,20 +29,20 @@ public class UserMvcController {
         VerificationToken verificationToken = userService.getVerificationToken(token);
         if (verificationToken == null) {
             model.addAttribute("message", "Invalid token");
-            return "redirect:http://localhost:5173/badUser";
+            return "redirect:" + frontendURL + "/badUser";
         }
 
         User user = verificationToken.getUser();
         Calendar cal = Calendar.getInstance();
         if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
             model.addAttribute("message", "Token expired");
-            return "redirect:http://localhost:5173/badUser";
+            return "redirect:" + frontendURL + "/badUser";
         }
 
         user.setEnabled(true);
         userService.saveRegisteredUser(user);
         userService.deleteVerificationToken(token);
-        return "redirect:http://localhost:5173/login";
+        return "redirect:" + frontendURL + "/login";
     }
 
     @PostMapping("/email/reset-password/{email}")
@@ -63,7 +67,7 @@ public class UserMvcController {
         if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
             throw new IllegalArgumentException("Token expired");
         }
-        return "redirect:http://localhost:5173/reset-password?token=" + token;
+        return "redirect:" + frontendURL + "/reset-password?token=" + token;
     }
 
     @PostMapping("/reset-password")

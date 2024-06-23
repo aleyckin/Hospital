@@ -13,6 +13,7 @@ import com.example.hospital.Util.Validation.ValidationException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -41,6 +42,9 @@ public class UserService implements UserDetailsService {
 
     private VerificationTokenRepository tokenRepository;
 
+    @Value("${frontend.url}")
+    private String frontendURL;
+
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtProvider jwtProvider, VerificationTokenRepository token) {
         this.userRepository = userRepository;
@@ -64,7 +68,7 @@ public class UserService implements UserDetailsService {
     private void sendVerificationEmail(User user, String token) {
         String recipientAddress = user.getMail();
         String subject = "Подтверждение регистрации";
-        String confirmationUrl = "http://localhost:8080/registrationConfirm?token=" + token;
+        String confirmationUrl = frontendURL + "/registrationConfirm?token=" + token;
         String message = "<p>Для подтверждения регистрации, пожалуйста, перейдите по ссылке:</p>"
                 + "<a href=\"" + confirmationUrl + "\">Подтвердить регистрацию</a>";
 
@@ -203,8 +207,21 @@ public class UserService implements UserDetailsService {
     }
 
     public void createVerificationToken(User user, String token) {
+        if (hasActiveVerificationToken(user)) {
+            throw new IllegalStateException("Пользователь уже имеет активный токен");
+        }
+
         VerificationToken myToken = new VerificationToken(token, user);
         tokenRepository.save(myToken);
+    }
+
+    public boolean hasActiveVerificationToken(User user) {
+        VerificationToken existingToken = tokenRepository.findByUser(user);
+        if (existingToken != null) {
+            Calendar cal = Calendar.getInstance();
+            return (existingToken.getExpiryDate().getTime() - cal.getTime().getTime()) > 0;
+        }
+        return false;
     }
 
     public void saveRegisteredUser(User user) {
@@ -222,6 +239,9 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void createPasswordResetToken(User user, String token) {
         try {
+            if (hasActiveVerificationToken(user)) {
+                throw new IllegalStateException("Пользователь уже имеет активный токен");
+            }
             VerificationToken myToken = new VerificationToken(token, user);
             tokenRepository.save(myToken);
         }
@@ -234,7 +254,7 @@ public class UserService implements UserDetailsService {
     public void sendPasswordResetEmail(User user, String token) {
         String recipientAddress = user.getMail();
         String subject = "Сброс пароля";
-        String confirmationUrl = "http://localhost:8080/reset-password?token=" + token;
+        String confirmationUrl = frontendURL + "/reset-password?token=" + token;
         String message = "Для сброса пароля, пожалуйста, перейдите по <a href=\"" + confirmationUrl + "\">этой ссылке</a>.";
 
         MimeMessage mimeMessage = mailSender.createMimeMessage();
