@@ -40,6 +40,12 @@ public class RecordController {
         return new RecordDTO(recordService.updateRecord(id, recordDTO));
     }
 
+    @PutMapping("updateStatus/{id}")
+    public RecordDTO updateStatusRecord(@PathVariable Long id, @RequestBody @Valid RecordDTO recordDTO) {
+        // Обновляем только статус, другие поля игнорируются
+        return new RecordDTO(recordService.updateRecordStatus(id, recordDTO.getStatus()));
+    }
+
     @DeleteMapping("/{id}")
     public RecordDTO deleteRecord(@PathVariable Long id) {
         return new RecordDTO(recordService.deleteRecord(id));
@@ -50,4 +56,12 @@ public class RecordController {
         recordService.deleteAllRecords();
     }
 
+    @GetMapping("/user")
+    public List<RecordDTO> getRecordsFromUser(@RequestParam Long userId, Model model) {
+        List<RecordDTO> recordDTOS;
+        recordDTOS = recordService.findAllUserRecords(userId).stream()
+                .map(RecordDTO::new)
+                .toList();
+        return recordDTOS;
+    }
 }

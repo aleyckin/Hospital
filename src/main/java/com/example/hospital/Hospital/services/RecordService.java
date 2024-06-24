@@ -110,4 +110,10 @@ public class RecordService {
         recordRepository.deleteAll();
     }
 
+    public Record updateRecordStatus(Long id, Status status) {
+        Record record = findRecord(id);
+        record.setStatus(status);
+        return recordRepository.save(record);
+    }
+
 }

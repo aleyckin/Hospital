@@ -6,6 +6,7 @@
           <li class="nav-item">
             <router-link to="/profile" class="nav-link">Профиль</router-link>
             <router-link to="/records" class="nav-link">Записи</router-link>
+            <router-link v-if="role === 'ADMIN'" to="/allrecords" class="nav-link">Все записи</router-link>
             <router-link v-if="role === 'ADMIN'" to="/doctor" class="nav-link">Врачи</router-link>
             <router-link v-if="role === 'ADMIN'" to="/users" class="nav-link">Пользователи</router-link>
             <button type="button" class="btn btn-secondary" @click="logout()">Разлогиниться</button>

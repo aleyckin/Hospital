@@ -7,6 +7,7 @@ import Error from "./pages/error.vue";
 import resetpassword from "./pages/resetpassword.vue";
 import badUser from "./pages/badUser.vue"
 import records from "./pages/records.vue"
+import allrecords from "./pages/allrecords.vue"
 import {createRouter, createWebHistory} from "vue-router"
 
 import axios from 'axios';
@@ -19,6 +20,7 @@ const routes = [
     {path: "/badUser", component: badUser},
     {path: "/registration", component: registration},
     {path: "/records", component: records, meta: { requiresAuth: true }},
+    {path: "/allrecords", component: allrecords, meta: { requiresAuth: true, requiresAdmin: true }},
     {path: "/reset-password", component: resetpassword, meta: { requiresAuth: true }},
     {path: "/error", component: Error, meta: { requiresAuth: true }},
     {

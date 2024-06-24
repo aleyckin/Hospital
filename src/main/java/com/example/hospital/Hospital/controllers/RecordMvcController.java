@@ -37,16 +37,6 @@ public class RecordMvcController {
         return "records";
     }
 
-    @GetMapping("/record/user")
-    public String getRecordsFromUser(@RequestParam Long userId, Model model) {
-        List<RecordDTO> recordDTOS;
-        recordDTOS = recordService.findAllUserRecords(userId).stream()
-                .map(RecordDTO::new)
-                .toList();
-        model.addAttribute("records", recordDTOS);
-        return "records";
-    }
-
     @GetMapping(value = {"/update", "/update/{id}"})
     public String updateRecord(@PathVariable(required = false) Long id,
                                 Model model) {
