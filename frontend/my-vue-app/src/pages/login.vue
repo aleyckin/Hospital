@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="login-container">
         <div class="login">
             <form @submit.prevent class="login__form" action="/">
                 <div class="form__login">
@@ -84,5 +84,54 @@ export default {
     }
 }
 </script>
-<style>
+<style scoped>
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* 100% высоты viewport */
+}
+
+.login {
+    width: 300px; /* Задайте желаемую ширину формы */
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+}
+
+.login__form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form__login,
+.form__password {
+    margin-bottom: 15px;
+}
+
+.login__buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.login__confirm {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.login__registration {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.login__registration:hover {
+    text-decoration: underline;
+}
 </style>

@@ -1,6 +1,6 @@
 <template>
     <div class="container mt-4">
-        <h1 class="text-center mb-4">Doctor Table</h1>
+        <h1 class="text-center mb-4">Таблица докторов</h1>
         <button class="btn btn-primary mr-2" @click="openModal('create')">Добавить</button>
         <table class="table table-striped">
             <thead>

@@ -2,20 +2,27 @@
   <nav v-if="token" class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav justify-content-center">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
           <li class="nav-item">
             <router-link to="/profile" class="nav-link">Профиль</router-link>
+          </li>
+          <li class="nav-item">
             <router-link to="/records" class="nav-link">Записи</router-link>
-            <router-link v-if="role === 'ADMIN'" to="/allrecords" class="nav-link">Все записи</router-link>
-            <router-link v-if="role === 'ADMIN'" to="/doctor" class="nav-link">Врачи</router-link>
-            <router-link v-if="role === 'ADMIN'" to="/users" class="nav-link">Пользователи</router-link>
-            <button type="button" class="btn btn-secondary" @click="logout()">Разлогиниться</button>
+          </li>
+          <li v-if="role === 'ADMIN'" class="nav-item">
+            <router-link to="/allrecords" class="nav-link">Все записи</router-link>
+          </li>
+          <li v-if="role === 'ADMIN'" class="nav-item">
+            <router-link to="/doctor" class="nav-link">Врачи</router-link>
+          </li>
+          <li v-if="role === 'ADMIN'" class="nav-item">
+            <router-link to="/users" class="nav-link">Пользователи</router-link>
           </li>
         </ul>
-        <div class="navbar-text ms-auto">
-          <span v-if="user">Пользователь: {{ user }}</span>
-          <span v-if="role"> | Роль: {{ role }}</span>
+        <div class="navbar-text">
+          <span v-if="user" class="me-3">Пользователь: {{ user }}</span>
         </div>
+        <button type="button" class="btn btn-danger ms-3" @click="logout">Выход</button>
       </div>
     </div>
   </nav>
@@ -96,3 +103,31 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.navbar-brand {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.nav-link {
+  color: black;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: color 0.3s ease-in-out;
+}
+
+.nav-link:hover {
+  color: #dc3545;
+}
+
+.navbar-text {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.btn {
+  font-weight: bold;
+}
+</style>
