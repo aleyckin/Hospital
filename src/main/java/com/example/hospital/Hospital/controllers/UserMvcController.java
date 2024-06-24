@@ -25,17 +25,17 @@ public class UserMvcController {
     }
 
     @GetMapping("/registrationConfirm")
-    public String confirmRegistration(WebRequest request, Model model, @RequestParam("token") String token) {
+    public String confirmRegistration(@RequestParam("token") String token) {
         VerificationToken verificationToken = userService.getVerificationToken(token);
         if (verificationToken == null) {
-            model.addAttribute("message", "Invalid token");
+            //model.addAttribute("message", "Invalid token");
             return "redirect:" + frontendURL + "/badUser";
         }
 
         User user = verificationToken.getUser();
         Calendar cal = Calendar.getInstance();
         if ((verificationToken.getExpiryDate().getTime() - cal.getTime().getTime()) <= 0) {
-            model.addAttribute("message", "Token expired");
+            //model.addAttribute("message", "Token expired");
             return "redirect:" + frontendURL + "/badUser";
         }
 

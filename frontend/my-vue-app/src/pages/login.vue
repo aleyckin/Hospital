@@ -60,7 +60,7 @@ export default {
                         role: this.role,
                     });
                     this.getUserData();
-                    this.$router.push("/doctor")
+                    this.$router.push("/profile")
                 } else {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");

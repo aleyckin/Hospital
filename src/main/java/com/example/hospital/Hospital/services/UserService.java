@@ -129,6 +129,12 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User updateUser(UserDTO userDTO) {
         final User currentUser = findByLogin(userDTO.getLogin());
+
+        User existingUserWithMail = userRepository.findByMail(userDTO.getMail());
+        if (existingUserWithMail != null && !existingUserWithMail.getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("Пользователь с таким email уже существует");
+        }
+
         currentUser.setMail(userDTO.getMail());
         currentUser.setPhoneNumber(userDTO.getPhoneNumber());
         return userRepository.save(currentUser);

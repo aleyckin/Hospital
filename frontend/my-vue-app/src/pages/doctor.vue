@@ -4,203 +4,212 @@
         <button class="btn btn-primary mr-2" @click="openModal('create')">Добавить</button>
         <table class="table table-striped">
             <thead>
-            <tr>
-                <th>Имя</th>
-                <th>Расположение</th>
-            </tr>
+                <tr>
+                    <th>Имя</th>
+                    <th>Расположение</th>
+                    <th>Действия</th>
+                </tr>
             </thead>
             <tbody>
-            <tr v-for="doctor in doctors" :key="doctor.id">
-                <td>{{ doctor.name }}</td>
-                <td>{{ doctor.place }}</td>
-                <td>
+                <tr v-for="doctor in doctors" :key="doctor.id">
+                    <td>{{ doctor.name }}</td>
+                    <td>{{ doctor.place }}</td>
                     <td>
                         <button class="btn btn-primary mr-2" @click="openModal('edit', doctor)">Изменить</button>
-                    </td>
-                    <td>
                         <button class="btn btn-danger" @click="deleteDoctor(doctor.id)">Удалить</button>
                     </td>
-                </td>
-            </tr>
+                </tr>
             </tbody>
         </table>
-    </div>
-    <div class="modal" tabindex="-1" id="editModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Доктор</h5>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <label for="name">Имя:</label>
-                            <input type="text" class="form-control" id="name" name="name" v-model="editedDoctor.name">
-                            <label for="place">Расположение:</label>
-                            <select class="form-control" id="place" name="place" v-model="editedDoctor.place">
-                                <option v-for="option in locationOptions" :key="option" :value="option">{{ option }}</option>
-                            </select>
+
+        <!-- Модальное окно для создания и редактирования -->
+        <div class="modal" :class="{ 'is-active': isModalActive, 'modal-center': isModalActive }">
+            <div class="modal-background" @click="closeModal"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">{{ modalTitle }}</p>
+                    <button class="delete" aria-label="close" @click="closeModal"></button>
+                </header>
+                <section class="modal-card-body">
+                    <form @submit.prevent="handleSubmit">
+                        <div class="field">
+                            <label class="label">Имя:</label>
+                            <input class="input" type="text" v-model="editedDoctor.name" required>
                         </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="editModal" @click="closeModal()">Закрыть</button>
-                    <button type="button" class="btn btn-primary" v-if="editedDoctor.status === 'create'" @click="addDoctor(editedDoctor)">Создать</button>
-                    <button type="button" class="btn btn-primary" v-else @click="editDoctor(editedDoctor)">Сохранить</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <div class="modal" tabindex="-1" id="ModelForRecords">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Записи</h5>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="form-group">
-                            <table class="table table-striped">
-                                <thead>
-                                <tr>
-                                    <th>Номер записи</th>
-                                    <th>Цена</th>
-                                    <th>Расположение</th>
-                                    <th>Статус</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr v-for="record in records" :key="record.id">
-                                    <td>{{ record.id }}</td>
-                                    <td>{{ record.price }}</td>
-                                    <td>{{ record.place }}</td>
-                                    <td>{{ record.status }}</td>
-                                </tr>
-                                </tbody>
-                            </table>
+                        <div class="field">
+                            <label class="label">Расположение:</label>
+                            <input class="input" type="text" v-model="editedDoctor.place" required>
                         </div>
+                        <button class="button is-primary" type="submit">{{ modalAction }}</button>
                     </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="ModelForRecords" @click="closeModelForRecords()">Закрыть</button>
-                </div>
+                </section>
             </div>
         </div>
     </div>
 </template>
+
 <script>
-import 'axios';
 import axios from "axios";
-import Doctor from "../models/Doctor"
-import Record from '../models/Record';
+import Doctor from "../models/Doctor";
+
 export default {
+    data() {
+        return {
+            doctors: [],
+            editedDoctor: {
+                id: null,
+                name: "",
+                place: "",
+            },
+            isModalActive: false,
+            modalTitle: "",
+            modalAction: "",
+            URL: "http://localhost:8080/api/",
+            postParams: {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
+                },
+            },
+            putParams: {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
+                },
+            },
+            delParams: {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
+                },
+            },
+            getParams: {
+                headers: {
+                    "Authorization": "Bearer " + localStorage.getItem("token"),
+                },
+            },
+        };
+    },
     created() {
         this.getDoctors();
     },
-    mounted() {
-        const addModal = document.getElementById('editModal');
-        addModal.addEventListener('shown.bs.modal', function () {
-        })
-    },
-
-    data() {
-        return{
-            locationOptions: ["HOSPITAL", "CLINIC", "HOME"],
-            doctors: [],
-            URL: "http://localhost:8080/api/",
-            doctor: new Doctor(),
-            editedDoctor: new Doctor(),
-            records: [],
-            postParams: {
-                            method:"POST",
-                            headers:{
-                                "Content-Type":"application/json",
-                                "Authorization": "Bearer " + localStorage.getItem("token"),
-                            }
-                        },
-                        putParams: {
-                            method:"PUT",
-                            headers:{
-                                "Content-Type":"application/json",
-                                "Authorization": "Bearer " + localStorage.getItem("token"),
-                            },
-                        },
-                        delParams: {
-                            method:"DELETE",
-                            headers:{
-                                "Content-Type":"application/json",
-                                "Authorization": "Bearer " + localStorage.getItem("token"),
-                            }
-                        },
-                        getParams: {
-                            method:"GET",
-                            headers:{
-                                "Authorization": "Bearer " + localStorage.getItem("token"),
-                            }
-                        },
-        }
-    },
     methods: {
-        getDoctors(){
+        getDoctors() {
             axios.get(this.URL + "doctor", this.getParams)
                 .then(response => {
                     this.doctors = response.data;
-                    console.log(response.data);
                 })
                 .catch(error => {
-                    console.log(error);
+                    console.error(error);
                 });
         },
         addDoctor(doctor) {
-            console.log(doctor);
-            axios
-                .post(this.URL + "doctor", doctor, this.postParams)
+            axios.post(this.URL + "doctor", doctor, this.postParams)
                 .then(() => {
                     this.getDoctors();
                     this.closeModal();
                 })
-                .catch((error) => {
-                    console.log(error);
+                .catch(error => {
+                    console.error(error);
                 });
-        },
-        deleteDoctor(id){
-            axios.delete(this.URL + `doctor/${id}`, this.delParams)
-                .then(() =>{
-                    this.getDoctors();
-                })
-        },
-        openModal(status, doctor = null) {
-            if (status === "create") {
-                this.editedDoctor = new Doctor();
-                this.editedDoctor.status = "create";
-            } else if (status === "edit" && doctor) {
-                this.editedDoctor = { ...doctor };
-                this.editedDoctor.status = "edit";
-            }
-
-            document.getElementById("editModal").style.display = "block";
-        },
-        closeModal() {
-            document.getElementById("editModal").style.display = "none";
         },
         editDoctor(doctor) {
             axios.put(this.URL + `doctor/${doctor.id}`, doctor, this.putParams)
                 .then(() => {
                     const index = this.doctors.findIndex((s) => s.id === doctor.id);
                     if (index !== -1) {
-                        this.doctors[index] = { ...doctor };
+                        this.$set(this.doctors, index, doctor); // Обновляем элемент в массиве
                     }
                     this.closeModal();
-                    this.getDoctors();
                 })
-                .catch((error) => {
-                    console.log(error);
+                .catch(error => {
+                    console.error(error);
                 });
         },
-    }
-}
+        deleteDoctor(id) {
+            axios.delete(this.URL + `doctor/${id}`, this.delParams)
+                .then(() => {
+                    this.getDoctors();
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        openModal(action, doctor = null) {
+            if (action === "create") {
+                this.modalTitle = "Добавить доктора";
+                this.modalAction = "Создать";
+                this.editedDoctor = { name: "", place: "" };
+            } else if (action === "edit" && doctor) {
+                this.modalTitle = "Изменить доктора";
+                this.modalAction = "Сохранить";
+                this.editedDoctor = { ...doctor };
+            }
+            this.isModalActive = true;
+        },
+        closeModal() {
+            this.isModalActive = false;
+        },
+        handleSubmit() {
+            if (this.modalAction === "Создать") {
+                this.addDoctor(this.editedDoctor);
+            } else if (this.modalAction === "Сохранить") {
+                this.editDoctor(this.editedDoctor);
+            }
+        },
+    },
+};
 </script>
-<style>
-    
+
+<style scoped>
+.modal {
+    display: none;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal.is-active {
+    display: flex;
+}
+
+.modal-card {
+    max-width: 90%;
+    width: 50%;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    margin: auto;
+    position: relative;
+}
+
+.modal-card-head {
+    background-color: #f0f0f0;
+    padding: 15px;
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+}
+
+.modal-card-body {
+    padding: 15px;
+}
+
+.modal-card-body .field {
+    margin-bottom: 10px;
+}
+
+.modal-center {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 999;
+}
 </style>
