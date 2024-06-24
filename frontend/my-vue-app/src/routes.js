@@ -16,16 +16,16 @@ const routes = [
     {path: '/doctor', component: doctor, meta: { requiresAuth: true, requiresAdmin: true }},
     {path: "/users", component: users, meta: { requiresAuth: true, requiresAdmin: true }},
     {path: '/profile', component: profile, meta: { requiresAuth: true }},
-    {path: "/login", component: login},
+    {path: "/login", component: login, meta: { guestOnly: true }},
     {path: "/badUser", component: badUser},
-    {path: "/registration", component: registration},
+    {path: "/registration", component: registration, meta: { guestOnly: true }},
     {path: "/records", component: records, meta: { requiresAuth: true }},
     {path: "/allrecords", component: allrecords, meta: { requiresAuth: true, requiresAdmin: true }},
     {path: "/reset-password", component: resetpassword, meta: { requiresAuth: true }},
     {path: "/error", component: Error, meta: { requiresAuth: true }},
     {
         path: "/registrationConfirm",
-        component: {
+        component: { 
             template: '<div></div>',
             mounted() {
                 const queryParams = new URLSearchParams(window.location.search);
@@ -67,6 +67,10 @@ router.beforeEach((to, from, next) => {
             next("/error");
             return;
         }
+    }
+    if (to.matched.some((route) => route.meta.guestOnly) && isAuthenticated) {
+        next("/profile");
+        return;
     }
     next();
 });

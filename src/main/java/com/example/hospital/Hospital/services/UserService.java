@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -185,18 +187,18 @@ public class UserService implements UserDetailsService {
                 accountNonLocked, Collections.singleton(userEntity.getRole()));
     }
 
-    public String loginAndGetToken(UserDTO userDTO) {
+    public ResponseEntity<String> loginAndGetToken(UserDTO userDTO) {
         final User user = findByLogin(userDTO.getLogin());
         if (user == null) {
-            throw new ValidationException("User is null.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not found.");
         }
         if (!passwordEncoder.matches(userDTO.getPassword(), user.getPassword())) {
-            throw new ValidationException("Incorrect password.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password.");
         }
         if (!user.getEnabled()) {
-            throw new ValidationException("Account not activated. Please check your email for activation link.");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account not activated. Please check your email for activation link.");
         }
-        return jwtProvider.generateToken(user.getLogin());
+        return ResponseEntity.ok(jwtProvider.generateToken(user.getLogin()));
     }
 
     public UserDetails loadUserByToken(String token) throws UsernameNotFoundException {

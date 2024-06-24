@@ -37,7 +37,7 @@ public class UserController {
     }
 
     @PostMapping(URL_LOGIN)
-    public String login(@RequestBody @Valid UserDTO userDTO) {
+    public ResponseEntity<String> login(@RequestBody @Valid UserDTO userDTO) {
         return userService.loginAndGetToken(userDTO);
     }
 

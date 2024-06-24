@@ -1,52 +1,49 @@
 <template>
     <div class="login-container">
         <div class="login">
-            <form @submit.prevent class="login__form" action="/">
+            <form @submit.prevent="login" class="login__form">
                 <div class="form__login">
                     <input  class="login-input form-control"
                             id="login" v-model="newUser.login"
-                            validate="false"
                             placeholder="Логин"
                             type="text"
-                            name="Логин">
+                            name="Логин"
+                            required>
                 </div>
                 <div class="form__password">
                     <input  class="password-input form-control"
                             id="password" v-model="newUser.password"
-                            validate="false"
                             placeholder="Пароль"
                             type="password"
-                            name="Пароль">
+                            name="Пароль"
+                            required>
                 </div>
                 <div class="login__buttons mt-5">
-                    <button type="submit" class="login__confirm" id="login__confirm" @click="login">Войти</button>
+                    <button type="submit" class="login__confirm" id="login__confirm">Войти</button>
                     <a class="login__registration" href="registration">Регистрация</a>
                 </div>
             </form>
         </div>
     </div>
 </template>
+
 <script>
 import axios from 'axios';
-export default {
-    mounted(){
 
-    },
-    data(){
-        return{
-            newUser: new Object,
+export default {
+    data() {
+        return {
+            newUser: {
+                login: '',
+                password: ''
+            },
             token: '',
             user: '',
-            role: '',
-        }
+            role: ''
+        };
     },
     methods: {
-        getUserData() {
-            this.user = localStorage.getItem("user") || '';
-            this.role = localStorage.getItem("role") || '';
-        },
         async login() {
-            await this.getRole()
             try {
                 const response = await axios.post(`http://localhost:8080/jwt/login`, this.newUser);
                 if (response.status === 200) {
@@ -54,46 +51,66 @@ export default {
                     localStorage.setItem("user", this.newUser.login);
                     this.token = response.data;
                     this.user = this.newUser.login;
+                    
+                    await this.getRole(); // Ожидание получения роли пользователя
+                    
                     this.$emit('login', {
                         token: this.token,
                         user: this.newUser.login,
                         role: this.role,
                     });
-                    this.getUserData();
-                    this.$router.push("/profile")
-                } else {
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("user");
-                    localStorage.removeItem("role");
+                    this.$router.push("/profile");
                 }
             } catch (error) {
-                console.log(error);
+                if (error.response) {
+                    // Сервер вернул ошибку с кодом состояния
+                    if (error.response.status === 401) {
+                        if (error.response.data === 'Incorrect password.') {
+                            alert('Неправильный пароль.');
+                        } else {
+                            alert('Пользователь не найден.');
+                        }
+                    } else if (error.response.status === 403) {
+                        alert('Аккаунт не активирован. Пожалуйста, проверьте вашу электронную почту для активации аккаунта.');
+                    } else {
+                        alert('Произошла ошибка при входе. Пожалуйста, попробуйте снова позже.');
+                    }
+                } else if (error.request) {
+                    // Ошибка запроса без ответа от сервера
+                    alert('Не удалось получить ответ от сервера. Пожалуйста, попробуйте снова позже.');
+                } else {
+                    // Общие ошибки при обработке запроса
+                    alert('Произошла ошибка при входе. Пожалуйста, попробуйте снова позже.');
+                }
+                // Очистка локального хранилища в случае ошибки
+                localStorage.removeItem("token");
+                localStorage.removeItem("user");
+                localStorage.removeItem("role");
             }
         },
-
-        async getRole(){
-            await axios.get(`http://localhost:8080/who_am_i?userLogin=${this.newUser.login}`)
-                .then((response) => {
-                    localStorage.setItem("role", response.data)
-                    this.role = response.data
-                })
-                .catch(error => {
-                    console.log(error);
-                })
+        async getRole() {
+            try {
+                const response = await axios.get(`http://localhost:8080/who_am_i?userLogin=${this.newUser.login}`);
+                localStorage.setItem("role", response.data);
+                this.role = response.data;
+            } catch (error) {
+                console.error(error);
+            }
         }
     }
 }
 </script>
+
 <style scoped>
 .login-container {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* 100% высоты viewport */
+    height: 100vh;
 }
 
 .login {
-    width: 300px; /* Задайте желаемую ширину формы */
+    width: 300px;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: #fff;
