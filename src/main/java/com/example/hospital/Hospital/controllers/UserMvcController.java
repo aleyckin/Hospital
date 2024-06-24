@@ -3,9 +3,12 @@ package com.example.hospital.Hospital.controllers;
 import com.example.hospital.Hospital.models.User;
 import com.example.hospital.Hospital.models.VerificationToken;
 import com.example.hospital.Hospital.services.UserService;
+import com.example.hospital.WebConfiguration;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -90,5 +93,22 @@ public class UserMvcController {
         userService.updatePassword(user.getMail(), newPassword);
         userService.deleteVerificationToken(token);
         return "Пароль успешно изменен";
+    }
+
+    /*@GetMapping(WebConfiguration.REST_API + "/user/id")
+    public ResponseEntity<Long> getUserIdByLogin(@RequestParam String login) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long userId = userService.findByLogin(login).getId();
+        return ResponseEntity.ok(userId);
+    }*/
+
+    @GetMapping(WebConfiguration.REST_API + "/user/id")
+    public ResponseEntity<Long> getUserIdByLogin(@RequestParam String login) {
+        User user = userService.findByLogin(login);
+        if (user != null) {
+            return ResponseEntity.ok(user.getId());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

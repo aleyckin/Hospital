@@ -1,18 +1,25 @@
 package com.example.hospital.Hospital.services;
 
+import com.auth0.jwt.JWT;
 import com.example.hospital.Hospital.controllers.RecordDTO;
 import com.example.hospital.Hospital.models.Record;
+import com.example.hospital.Hospital.models.User;
 import com.example.hospital.Hospital.models.enums.Place;
 import com.example.hospital.Hospital.models.enums.Status;
 import com.example.hospital.Hospital.repository.RecordRepository;
+import com.example.hospital.Hospital.repository.UserRepository;
 import com.example.hospital.Util.Validation.ValidatorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+
+//import static com.example.hospital.SecurityConfiguration.getAccessToken;
 
 @Service
 public class RecordService {
@@ -58,7 +65,25 @@ public class RecordService {
 
     @Transactional(readOnly = true)
     public List<Record> findAllRecords() {
-        return recordRepository.findAll();
+        List<Record> temp = recordRepository.findAll();
+        return temp;
+    }
+
+    @Transactional
+    public List<Record> findAllUserRecords(Long userId) {
+        List<Record> records = recordRepository.findRecordsByUserId(userId);
+        return records;
+    }
+
+    public User getUserFromContext() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
+        return userService.findByLogin(username);
     }
 
     @Transactional
@@ -84,4 +109,5 @@ public class RecordService {
     public void deleteAllRecords() {
         recordRepository.deleteAll();
     }
+
 }

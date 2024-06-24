@@ -3,6 +3,7 @@ package com.example.hospital.Hospital.controllers;
 import com.example.hospital.Hospital.services.RecordService;
 import com.example.hospital.WebConfiguration;
 import jakarta.validation.Valid;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -48,4 +49,5 @@ public class RecordController {
     public void deleteAll() {
         recordService.deleteAllRecords();
     }
+
 }

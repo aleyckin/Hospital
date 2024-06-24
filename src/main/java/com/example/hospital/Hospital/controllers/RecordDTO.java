@@ -31,6 +31,7 @@ public class RecordDTO {
         this.id = record.getId();
         this.price = record.getPrice();
         this.status = record.getStatus();
+        this.place = record.getPlace();
         this.doctor_id = record.getDoctor().getId();
         this.doctorName = record.getDoctor().getName();
         this.user_id = record.getUser().getId();

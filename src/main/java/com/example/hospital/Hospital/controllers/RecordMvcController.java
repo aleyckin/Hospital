@@ -5,6 +5,7 @@ import com.example.hospital.Hospital.models.enums.Status;
 import com.example.hospital.Hospital.services.DoctorService;
 import com.example.hospital.Hospital.services.RecordService;
 import com.example.hospital.Hospital.services.UserService;
+import com.example.hospital.WebConfiguration;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,6 +31,16 @@ public class RecordMvcController {
     public String getRecords(Model model) {
         List<RecordDTO> recordDTOS;
         recordDTOS = recordService.findAllRecords().stream()
+                .map(RecordDTO::new)
+                .toList();
+        model.addAttribute("records", recordDTOS);
+        return "records";
+    }
+
+    @GetMapping("/record/user")
+    public String getRecordsFromUser(@RequestParam Long userId, Model model) {
+        List<RecordDTO> recordDTOS;
+        recordDTOS = recordService.findAllUserRecords(userId).stream()
                 .map(RecordDTO::new)
                 .toList();
         model.addAttribute("records", recordDTOS);

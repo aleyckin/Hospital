@@ -8,9 +8,11 @@ import com.example.hospital.Hospital.models.enums.UserRole;
 import com.example.hospital.Hospital.services.UserService;
 import com.example.hospital.Util.Validation.ValidationException;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -55,7 +57,7 @@ public class UserController {
         }
     }
 
-    @GetMapping(URL_PROFILE + "/{login}")
+    @GetMapping(value = { URL_PROFILE + "/{login}", WebConfiguration.REST_API + "/user/current"})
     @Secured({UserRole.AsString.ADMIN, UserRole.AsString.USER})
     public UserDTO getUser(@PathVariable String login) {
         User user = userService.findByLogin(login);
@@ -86,11 +88,4 @@ public class UserController {
         userService.deleteUser(id);
     }
 
-    @GetMapping(WebConfiguration.REST_API + "/user/current")
-    public UserDTO getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userService.findByLogin(username);
-        return new UserDTO(user);
-    }
 }
