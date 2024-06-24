@@ -38,7 +38,15 @@
                         </div>
                         <div class="field">
                             <label class="label">Расположение:</label>
-                            <input class="input" type="text" v-model="editedDoctor.place" required>
+                            <div class="control">
+                                <div class="select">
+                                    <select v-model="editedDoctor.place" required>
+                                        <option v-for="option in placeOptions" :key="option" :value="option">
+                                            {{ option }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                         <button class="button is-primary" type="submit">{{ modalAction }}</button>
                     </form>
@@ -59,11 +67,12 @@ export default {
             editedDoctor: {
                 id: null,
                 name: "",
-                place: "",
+                place: "Zasviyazhye", // Default value
             },
             isModalActive: false,
             modalTitle: "",
             modalAction: "",
+            placeOptions: ["Zasviyazhye", "Kindyakovka", "Center", "Sever"], // Enum options
             URL: "http://localhost:8080/api/",
             postParams: {
                 headers: {
@@ -118,7 +127,8 @@ export default {
                 .then(() => {
                     const index = this.doctors.findIndex((s) => s.id === doctor.id);
                     if (index !== -1) {
-                        this.$set(this.doctors, index, doctor); // Обновляем элемент в массиве
+                        // Обновляем элемент в массиве напрямую
+                        this.doctors[index] = doctor;
                     }
                     this.closeModal();
                 })
@@ -139,7 +149,7 @@ export default {
             if (action === "create") {
                 this.modalTitle = "Добавить доктора";
                 this.modalAction = "Создать";
-                this.editedDoctor = { name: "", place: "" };
+                this.editedDoctor = { name: "", place: "Zasviyazhye" }; // Default value
             } else if (action === "edit" && doctor) {
                 this.modalTitle = "Изменить доктора";
                 this.modalAction = "Сохранить";

@@ -1,5 +1,6 @@
 package com.example.hospital.Hospital.controllers;
 
+import com.example.hospital.WebConfiguration;
 import org.springframework.context.MessageSource;
 import com.example.hospital.Hospital.models.User;
 import com.example.hospital.Hospital.models.VerificationToken;
@@ -8,6 +9,8 @@ import com.example.hospital.Hospital.services.UserService;
 import com.example.hospital.Util.Validation.ValidationException;
 import jakarta.validation.Valid;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
@@ -83,4 +86,11 @@ public class UserController {
         userService.deleteUser(id);
     }
 
+    @GetMapping(WebConfiguration.REST_API + "/user/current")
+    public UserDTO getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User user = userService.findByLogin(username);
+        return new UserDTO(user);
+    }
 }
