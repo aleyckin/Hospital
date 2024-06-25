@@ -2,11 +2,14 @@ package com.example.hospital.Hospital.controllers;
 
 import com.example.hospital.Hospital.models.Doctor;
 import com.example.hospital.Hospital.models.enums.Place;
+import com.example.hospital.Hospital.models.enums.Specialization;
 
 public class DoctorDTO {
     private Long id;
     private String name;
     private Place place;
+
+    private Specialization specialization;
 
     public DoctorDTO() {}
 
@@ -14,6 +17,7 @@ public class DoctorDTO {
         this.id = doctor.getId();
         this.name = doctor.getName();
         this.place = doctor.getPlace();
+        this.specialization = doctor.getSpecialization();
     }
 
     public Long getId() {
@@ -28,9 +32,13 @@ public class DoctorDTO {
         return place;
     }
 
+    public Specialization getSpecialization() { return specialization; }
+
     public void setId(Long id) { this.id = id; }
 
     public void setName(String name) { this.name = name; }
 
     public void setPlace(Place place) { this.place = place; }
+
+    public void setSpecialization(Specialization specialization) { this.specialization = specialization; }
 }

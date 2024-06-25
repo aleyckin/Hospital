@@ -2,6 +2,7 @@ package com.example.hospital.Hospital.models;
 
 import com.example.hospital.Hospital.controllers.DoctorDTO;
 import com.example.hospital.Hospital.models.enums.Place;
+import com.example.hospital.Hospital.models.enums.Specialization;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 
@@ -21,18 +22,24 @@ public class Doctor {
     @Enumerated(EnumType.STRING)
     private Place place;
 
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Specialization specialization;
+
     public Doctor() {
 
     }
 
-    public Doctor(String name, Place place) {
+    public Doctor(String name, Place place, Specialization specialization) {
         this.name = name;
         this.place = place;
+        this.specialization = specialization;
     }
 
     public Doctor(DoctorDTO doctorDTO) {
         this.name = doctorDTO.getName();
         this.place = doctorDTO.getPlace();
+        this.specialization = doctorDTO.getSpecialization();
     }
 
     public Long getId() { return id;}
@@ -44,6 +51,10 @@ public class Doctor {
     public Place getPlace() { return place; }
 
     public void setPlace(Place place) { this.place = place;}
+
+    public Specialization getSpecialization() { return specialization; }
+
+    public void setSpecialization(Specialization specialization) { this.specialization = specialization; }
 
     @Override
     public boolean equals(Object o) {

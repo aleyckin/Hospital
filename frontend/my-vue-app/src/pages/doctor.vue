@@ -14,6 +14,7 @@
                 <tr v-for="doctor in doctors" :key="doctor.id">
                     <td>{{ doctor.name }}</td>
                     <td>{{ doctor.place }}</td>
+                    <td>{{ doctor.specialization }}</td>
                     <td>
                         <button class="btn btn-primary mr-2" @click="openModal('edit', doctor)">Изменить</button>
                         <button class="btn btn-danger" @click="deleteDoctor(doctor.id)">Удалить</button>
@@ -48,6 +49,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="field">
+                            <label class="label">Специализация:</label>
+                            <div class="control">
+                                <div class="select">
+                                    <select v-model="editedDoctor.specialization" required>
+                                        <option v-for="option in placeOptionsSpecialization" :key="option" :value="option">
+                                            {{ option }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                         <button class="button is-primary" type="submit">{{ modalAction }}</button>
                     </form>
                 </section>
@@ -67,12 +80,14 @@ export default {
             editedDoctor: {
                 id: null,
                 name: "",
-                place: "Zasviyazhye", // Default value
+                place: "Zasviyazhye",
+                specialization: "Dentist"
             },
             isModalActive: false,
             modalTitle: "",
             modalAction: "",
-            placeOptions: ["Zasviyazhye", "Kindyakovka", "Center", "Sever"], // Enum options
+            placeOptions: ["Zasviyazhye", "Kindyakovka", "Center", "Sever"],
+            placeOptionsSpecialization: ["Cardiologist", "Dermatologist", "Ophthalmologist", "Dentist"],
             URL: "http://localhost:8080/api/",
             postParams: {
                 headers: {
@@ -149,7 +164,7 @@ export default {
             if (action === "create") {
                 this.modalTitle = "Добавить доктора";
                 this.modalAction = "Создать";
-                this.editedDoctor = { name: "", place: "Zasviyazhye" }; // Default value
+                this.editedDoctor = { name: "", place: "Zasviyazhye", specialization: "Dentist" }; // Default value
             } else if (action === "edit" && doctor) {
                 this.modalTitle = "Изменить доктора";
                 this.modalAction = "Сохранить";

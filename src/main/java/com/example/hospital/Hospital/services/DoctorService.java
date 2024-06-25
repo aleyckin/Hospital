@@ -3,6 +3,7 @@ package com.example.hospital.Hospital.services;
 import com.example.hospital.Hospital.controllers.DoctorDTO;
 import com.example.hospital.Hospital.models.Doctor;
 import com.example.hospital.Hospital.models.enums.Place;
+import com.example.hospital.Hospital.models.enums.Specialization;
 import com.example.hospital.Hospital.repository.DoctorRepository;
 import com.example.hospital.Util.Validation.ValidatorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class DoctorService {
     }
 
     @Transactional
-    public Doctor addDoctor(String name, Place place) {
-        final Doctor doctor = new Doctor(name, place);
+    public Doctor addDoctor(String name, Place place, Specialization specialization) {
+        final Doctor doctor = new Doctor(name, place, specialization);
         validatorUtil.validate(doctor);
         return doctorRepository.save(doctor);
     }
