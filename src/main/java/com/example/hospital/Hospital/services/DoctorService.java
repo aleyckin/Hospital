@@ -56,10 +56,11 @@ public class DoctorService {
     }
 
     @Transactional
-    public Doctor updateDoctor(Long id, String name, Place place) {
+    public Doctor updateDoctor(Long id, String name, Place place, Specialization specialization) {
         final Doctor currentDoctor = findDoctor(id);
         currentDoctor.setName(name);
         currentDoctor.setPlace(place);
+        currentDoctor.setSpecialization(specialization);
         validatorUtil.validate(currentDoctor);
         return doctorRepository.save(currentDoctor);
     }
@@ -69,6 +70,7 @@ public class DoctorService {
         final Doctor currentDoctor = findDoctor(id);
         currentDoctor.setName(doctorDTO.getName());
         currentDoctor.setPlace(doctorDTO.getPlace());
+        currentDoctor.setSpecialization(doctorDTO.getSpecialization());
         validatorUtil.validate(currentDoctor);
         return doctorRepository.save(currentDoctor);
     }
