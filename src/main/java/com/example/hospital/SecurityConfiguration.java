@@ -66,6 +66,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, UserController.URL_SIGN_UP).permitAll()
                         .requestMatchers(HttpMethod.POST, UserController.URL_WHO_AM_I).permitAll()
                         .requestMatchers("/email/**").permitAll()
+                        .requestMatchers("/api/record/price").permitAll()
                         .anyRequest()
                         .authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

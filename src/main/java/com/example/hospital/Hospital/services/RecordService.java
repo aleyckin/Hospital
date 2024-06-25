@@ -2,9 +2,11 @@ package com.example.hospital.Hospital.services;
 
 import com.auth0.jwt.JWT;
 import com.example.hospital.Hospital.controllers.RecordDTO;
+import com.example.hospital.Hospital.models.Doctor;
 import com.example.hospital.Hospital.models.Record;
 import com.example.hospital.Hospital.models.User;
 import com.example.hospital.Hospital.models.enums.Place;
+import com.example.hospital.Hospital.models.enums.Specialization;
 import com.example.hospital.Hospital.models.enums.Status;
 import com.example.hospital.Hospital.repository.RecordRepository;
 import com.example.hospital.Hospital.repository.UserRepository;
@@ -27,6 +29,7 @@ public class RecordService {
     private final ValidatorUtil validatorUtil;
     private final DoctorService doctorService;
     private final UserService userService;
+
 
     @Autowired
     public RecordService(RecordRepository recordRepository, ValidatorUtil validatorUtil, DoctorService doctorService, UserService userService) {
@@ -116,4 +119,23 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
+    public double determinePrice(Long doctorId) {
+        Doctor doctor = doctorService.findDoctor(doctorId);
+        return getPriceBySpecialization(doctor.getSpecialization());
+    }
+
+    private double getPriceBySpecialization(Specialization specialization) {
+        switch (specialization) {
+            case Cardiologist:
+                return 100.0;
+            case Dermatologist:
+                return 80.0;
+            case Ophthalmologist:
+                return 120.0;
+            case Dentist:
+                return 50.0;
+            default:
+                return 30;
+        }
+    }
 }

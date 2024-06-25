@@ -3,6 +3,7 @@ package com.example.hospital.Hospital.controllers;
 import com.example.hospital.Hospital.services.RecordService;
 import com.example.hospital.WebConfiguration;
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,5 +64,11 @@ public class RecordController {
                 .map(RecordDTO::new)
                 .toList();
         return recordDTOS;
+    }
+
+    @GetMapping("/price")
+    public ResponseEntity<Double> getPrice(@RequestParam Long doctorId) {
+        double price = recordService.determinePrice(doctorId);
+        return ResponseEntity.ok(price);
     }
 }

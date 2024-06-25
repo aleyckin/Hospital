@@ -40,7 +40,7 @@
                         <form @submit.prevent="handleSubmit">
                             <div class="field">
                                 <label class="label">Цена:</label>
-                                <input class="input" type="number" v-model="editedRecord.price" required>
+                                <input class="input" type="number" v-model="editedRecord.price" required readonly>
                             </div>
                             <div class="field">
                                 <label class="label">Расположение:</label>
@@ -58,7 +58,7 @@
                                 <label class="label">Доктор:</label>
                                 <div class="control">
                                     <div class="select">
-                                        <select v-model="editedRecord.doctorId" required>
+                                        <select v-model="editedRecord.doctorId" @change="updatePrice" required>
                                             <option v-for="doctor in filteredDoctors" :key="doctor.id" :value="doctor.id">
                                                 {{ doctor.name }}
                                             </option>
@@ -216,12 +216,10 @@ export default {
                     doctorId: null,
                     userId: this.userId
                 };
-                this.filterDoctorsByPlace();
-            } else if (action === "edit" && record) {
-                this.modalTitle = "Изменить запись";
+            } else if (action === "edit") {
+                this.modalTitle = "Редактировать запись";
                 this.modalAction = "Сохранить";
                 this.editedRecord = { ...record };
-                this.filterDoctorsByPlace();
             }
             this.isModalActive = true;
         },
@@ -237,7 +235,18 @@ export default {
         },
         filterDoctorsByPlace() {
             this.filteredDoctors = this.doctors.filter(doctor => doctor.place === this.editedRecord.place);
-        }
+        },
+        updatePrice() {
+            if (this.editedRecord.doctorId) {
+                axios.get(this.URL + "record/price", { params: { doctorId: this.editedRecord.doctorId } })
+                    .then(response => {
+                        this.editedRecord.price = response.data;
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            }
+        },
     }
 };
 </script>
