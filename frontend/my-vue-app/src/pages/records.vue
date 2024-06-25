@@ -11,6 +11,8 @@
                         <th>Расположение</th>
                         <th>Статус</th>
                         <th>Доктор</th>
+                        <th>Начало</th>
+                        <th>Конец</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -20,6 +22,8 @@
                         <td>{{ record.place }}</td>
                         <td>{{ record.status }}</td>
                         <td>{{ doctors.find(doctor => doctor.id === record.doctorId)?.name }}</td>
+                        <td>{{ formatDateTime(record.startTime) }}</td>
+                        <td>{{ formatDateTime(record.endTime) }}</td>
                         <td>
                             <button class="btn btn-primary mr-2" @click="openModal('edit', record)">Изменить</button>
                             <button class="btn btn-danger" @click="deleteRecord(record.id)">Удалить</button>
@@ -66,11 +70,25 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="field">
+                                <label class="label">Начало:</label>
+                                <input class="input" type="datetime-local" v-model="editedRecord.startTime" required>
+                            </div>
+                            <div class="field">
+                                <label class="label">Конец:</label>
+                                <input class="input" type="datetime-local" v-model="editedRecord.endTime" required>
+                            </div>
                             <button class="button is-primary" type="submit">{{ modalAction }}</button>
                         </form>
                     </section>
                 </div>
             </div>
+        </div>
+        <div v-if="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ errorMessage }}
+            <button type="button" class="close" @click="errorMessage = ''">
+                <span aria-hidden="true">&times;</span>
+            </button>
         </div>
     </div>
 </template>
@@ -99,11 +117,15 @@ export default {
                 place: "Zasviyazhye", // Default value
                 status: "Active", // Default value
                 doctorId: null,
-                userId: null
+                userId: null,
+                startTime: null,
+                endTime: null
             },
             isModalActive: false,
             modalTitle: "",
             modalAction: "",
+            errorMessage: "",
+            maxDuration: 2 * 60 * 60 * 1000, // Максимальная длительность 2 часа в миллисекундах
             URL: "http://localhost:8080/api/",
             postParams: {
                 headers: {
@@ -176,12 +198,23 @@ export default {
                 });
         },
         addRecord() {
-            axios.post(this.URL + "record",  this.editedRecord, this.postParams)
+            // Проверка startTime и endTime
+            if (!this.isValidTimeRange()) {
+                this.errorMessage = "Пожалуйста, убедитесь, что время начала меньше времени окончания и длительность не превышает 2 часов.";
+                return;
+            }
+
+            axios.post(this.URL + "record", this.editedRecord, this.postParams)
                 .then(() => {
                     this.getRecords(this.userId);
                     this.closeModal();
                 })
                 .catch(error => {
+                    if (error.response && error.response.status === 400 && error.response.data.message) {
+                        this.errorMessage = error.response.data.message;
+                    } else {
+                        this.errorMessage = "Произошла ошибка при добавлении записи.";
+                    }
                     console.error(error);
                 });
         },
@@ -195,6 +228,11 @@ export default {
                 });
         },
         editRecord() {
+            if (!this.isValidTimeRange()) {
+                this.errorMessage = "Пожалуйста, убедитесь, что время начала меньше времени окончания и длительность не превышает 2 часов.";
+                return;
+            }
+
             axios.put(this.URL + `record/${this.editedRecord.id}`, this.editedRecord, this.putParams)
                 .then(() => {
                     this.getRecords(this.userId);
@@ -214,7 +252,9 @@ export default {
                     place: "Zasviyazhye", // Default value
                     status: "Active", // Default value
                     doctorId: null,
-                    userId: this.userId
+                    userId: this.userId,
+                    startTime: null,
+                    endTime: null
                 };
             } else if (action === "edit") {
                 this.modalTitle = "Редактировать запись";
@@ -246,6 +286,24 @@ export default {
                         console.error(error);
                     });
             }
+        },
+        formatDateTime(dateTimeStr) {
+            const dateTime = new Date(dateTimeStr);
+            return `${dateTime.toLocaleDateString()} ${dateTime.toLocaleTimeString()}`;
+        },
+        isValidTimeRange() {
+            const startTime = new Date(this.editedRecord.startTime).getTime();
+            const endTime = new Date(this.editedRecord.endTime).getTime();
+
+            if (startTime >= endTime) {
+                return false; // startTime должно быть раньше endTime
+            }
+
+            if (endTime - startTime > this.maxDuration) {
+                return false; // Длительность не должна превышать 2 часа
+            }
+
+            return true;
         },
     }
 };

@@ -10,6 +10,7 @@ import com.example.hospital.Hospital.models.enums.Specialization;
 import com.example.hospital.Hospital.models.enums.Status;
 import com.example.hospital.Hospital.repository.RecordRepository;
 import com.example.hospital.Hospital.repository.UserRepository;
+import com.example.hospital.Util.Validation.TimeSlotOccupiedException;
 import com.example.hospital.Util.Validation.ValidatorUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,6 +43,9 @@ public class RecordService {
 
     @Transactional
     public Record addRecord(RecordDTO recordDTO) throws IOException {
+        if (isTimeSlotOccupied(recordDTO.getDoctor_id(), recordDTO.getStartTime(), recordDTO.getEndTime())) {
+            throw new TimeSlotOccupiedException("Time slot is already occupied");
+        }
         final Record record = new Record(recordDTO);
         record.setDoctor(doctorService.findDoctor(recordDTO.getDoctor_id()));
         record.setUser(userService.findUser(recordDTO.getUser_id()));
@@ -48,9 +53,14 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
+    private boolean isTimeSlotOccupied(Long doctorId, LocalDateTime startTime, LocalDateTime endTime) {
+        List<Record> records = recordRepository.findRecordsByDoctorIdAndTimeRange(doctorId, startTime, endTime);
+        return !records.isEmpty();
+    }
+
     @Transactional
-    public Record addRecord(Double price, Place place, Status status) {
-        final Record record = new Record(price, place, status);
+    public Record addRecord(Double price, Place place, Status status, LocalDateTime startTime, LocalDateTime endTime) {
+        final Record record = new Record(price, place, status, startTime, endTime);
         validatorUtil.validate(record);
         return recordRepository.save(record);
     }
@@ -91,10 +101,16 @@ public class RecordService {
 
     @Transactional
     public Record updateRecord(Long id, RecordDTO recordDTO) {
+        if (isTimeSlotOccupied(recordDTO.getDoctor_id(), recordDTO.getStartTime(), recordDTO.getEndTime())) {
+            throw new TimeSlotOccupiedException("Time slot is already occupied");
+        }
+
         final Record currentRecord = findRecord(id);
         currentRecord.setPrice(recordDTO.getPrice());
         currentRecord.setPlace(recordDTO.getPlace());
         currentRecord.setStatus(recordDTO.getStatus());
+        currentRecord.setStartTime(recordDTO.getStartTime());
+        currentRecord.setEndTime(recordDTO.getEndTime());
         currentRecord.setDoctor(doctorService.findDoctor(recordDTO.getDoctor_id()));
         currentRecord.setUser(userService.findUser(recordDTO.getUser_id()));
         validatorUtil.validate(currentRecord);

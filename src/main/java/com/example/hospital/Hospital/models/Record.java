@@ -6,6 +6,7 @@ import com.example.hospital.Hospital.models.enums.Status;
 import jakarta.persistence.*;
 import jakarta.persistence.Id;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -25,6 +26,13 @@ public class Record {
     @Enumerated(EnumType.STRING)
     private Status status;
 
+    @Column
+    private LocalDateTime startTime;
+
+    @Column
+    private LocalDateTime endTime;
+
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
     private Doctor doctor;
@@ -37,7 +45,7 @@ public class Record {
 
     }
 
-    public Record(Double price, Place place, Status status)
+    public Record(Double price, Place place, Status status, LocalDateTime startTime, LocalDateTime endTime)
     {
         this.price = price;
         this.place = place;
@@ -48,6 +56,8 @@ public class Record {
         this.price = recordDTO.getPrice();
         this.place = recordDTO.getPlace();
         this.status = recordDTO.getStatus();
+        this.startTime = recordDTO.getStartTime();
+        this.endTime = recordDTO.getEndTime();
     }
 
 
@@ -75,6 +85,22 @@ public class Record {
     }
 
     public void setUser(User user) { this.user = user;}
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 
     @Override
     public boolean equals(Object o) {

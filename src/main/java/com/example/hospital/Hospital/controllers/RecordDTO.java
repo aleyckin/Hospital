@@ -5,6 +5,8 @@ import com.example.hospital.Hospital.models.enums.Place;
 import com.example.hospital.Hospital.models.enums.Status;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.time.LocalDateTime;
+
 public class RecordDTO {
     private Long id;
 
@@ -13,6 +15,9 @@ public class RecordDTO {
     private Place place;
 
     private Status status;
+
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     @JsonProperty("doctorId")
     private Long doctor_id;
@@ -36,6 +41,8 @@ public class RecordDTO {
         this.doctorName = record.getDoctor().getName();
         this.user_id = record.getUser().getId();
         this.userMail = record.getUser().getMail();
+        this.startTime = record.getStartTime();
+        this.endTime = record.getEndTime();
     }
 
     public Long getId() {
@@ -81,4 +88,20 @@ public class RecordDTO {
     public void setUserMail(String mail) { this.userMail = userMail; }
 
     public void setUser_id(Long userId) { this.user_id = userId; }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 }
