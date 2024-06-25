@@ -11,6 +11,8 @@
                         <th>Статус</th>
                         <th>Доктор</th>
                         <th>User ID</th>
+                        <th>Начало</th>
+                        <th>Конец</th>
                         <th>Действия</th>
                     </tr>
                 </thead>
@@ -20,8 +22,10 @@
                         <td>{{ record.price }}</td>
                         <td>{{ record.place }}</td>
                         <td>{{ record.status }}</td>
-                        <td>{{ doctors.find(doctor => doctor.id === record.doctorId)?.name }}</td>
+                        <td>{{ getDoctorName(record.doctorId) }}</td>
                         <td>{{ record.userId }}</td>
+                        <td>{{ formatDateTime(record.startTime) }}</td>
+                        <td>{{ formatDateTime(record.endTime) }}</td>
                         <td>
                             <button class="btn btn-primary mr-2" @click="openModal('edit', record)">Изменить</button>
                             <button class="btn btn-danger" @click="deleteRecord(record.id)">Удалить</button>
@@ -97,7 +101,9 @@ export default {
                 place: "Zasviyazhye", // Default value
                 status: "Active", // Default value
                 doctorId: null,
-                userId: null
+                userId: null,
+                startTime: null,
+                endTime: null
             },
             isModalActive: false,
             modalTitle: "",
@@ -186,6 +192,10 @@ export default {
         getDoctorName(doctorId) {
             const doctor = this.doctors.find(doc => doc.id === doctorId);
             return doctor ? doctor.name : 'Неизвестный доктор';
+        },
+        formatDateTime(dateTimeStr) {
+            const dateTime = new Date(dateTimeStr);
+            return `${dateTime.toLocaleDateString()} ${dateTime.toLocaleTimeString()}`;
         }
     }
 };
