@@ -43,9 +43,10 @@ public class RecordService {
 
     @Transactional
     public Record addRecord(RecordDTO recordDTO) throws IOException {
-        if (isTimeSlotOccupied(recordDTO.getDoctor_id(), recordDTO.getStartTime(), recordDTO.getEndTime())) {
+        if (isTimeSlotOccupied(null, recordDTO.getDoctor_id(), recordDTO.getStartTime(), recordDTO.getEndTime())) {
             throw new TimeSlotOccupiedException("Time slot is already occupied");
         }
+
         final Record record = new Record(recordDTO);
         record.setDoctor(doctorService.findDoctor(recordDTO.getDoctor_id()));
         record.setUser(userService.findUser(recordDTO.getUser_id()));
@@ -53,8 +54,13 @@ public class RecordService {
         return recordRepository.save(record);
     }
 
-    private boolean isTimeSlotOccupied(Long doctorId, LocalDateTime startTime, LocalDateTime endTime) {
-        List<Record> records = recordRepository.findRecordsByDoctorIdAndTimeRange(doctorId, startTime, endTime);
+    private boolean isTimeSlotOccupied(Long recordId, Long doctorId, LocalDateTime startTime, LocalDateTime endTime) {
+        List<Record> records;
+        if (recordId != null) {
+            records = recordRepository.findRecordsByDoctorIdAndTimeRangeExceptCurrent(recordId, doctorId, startTime, endTime);
+        } else {
+            records = recordRepository.findRecordsByDoctorIdAndTimeRange(doctorId, startTime, endTime);
+        }
         return !records.isEmpty();
     }
 
@@ -101,7 +107,7 @@ public class RecordService {
 
     @Transactional
     public Record updateRecord(Long id, RecordDTO recordDTO) {
-        if (isTimeSlotOccupied(recordDTO.getDoctor_id(), recordDTO.getStartTime(), recordDTO.getEndTime())) {
+        if (isTimeSlotOccupied(id, recordDTO.getDoctor_id(), recordDTO.getStartTime(), recordDTO.getEndTime())) {
             throw new TimeSlotOccupiedException("Time slot is already occupied");
         }
 

@@ -21,7 +21,7 @@
                         <td>{{ record.price }}</td>
                         <td>{{ record.place }}</td>
                         <td>{{ record.status }}</td>
-                        <td>{{ doctors.find(doctor => doctor.id === record.doctorId)?.name }}</td>
+                        <td>{{ formatDoctorInfo(record.doctorId) }}</td>
                         <td>{{ formatDateTime(record.startTime) }}</td>
                         <td>{{ formatDateTime(record.endTime) }}</td>
                         <td>
@@ -29,6 +29,7 @@
                             <button class="btn btn-danger" @click="deleteRecord(record.id)">Удалить</button>
                         </td>
                     </tr>
+                    
                 </tbody>
             </table>
 
@@ -40,7 +41,8 @@
                         <p class="modal-card-title">{{ modalTitle }}</p>
                         <button class="delete" aria-label="close" @click="closeModal"></button>
                     </header>
-                    <section class="modal-card-body">
+                    <section class="modal-card-body">    
+                        <!-- Форма редактирования записи -->
                         <form @submit.prevent="handleSubmit">
                             <div class="field">
                                 <label class="label">Цена:</label>
@@ -64,7 +66,7 @@
                                     <div class="select">
                                         <select v-model="editedRecord.doctorId" @change="updatePrice" required>
                                             <option v-for="doctor in filteredDoctors" :key="doctor.id" :value="doctor.id">
-                                                {{ doctor.name }}
+                                                {{ doctor.specialization }} {{ doctor.name }}
                                             </option>
                                         </select>
                                     </div>
@@ -78,6 +80,7 @@
                                 <label class="label">Конец:</label>
                                 <input class="input" type="datetime-local" v-model="editedRecord.endTime" required>
                             </div>
+                            <hr>
                             <button class="button is-primary" type="submit">{{ modalAction }}</button>
                         </form>
                     </section>
@@ -212,8 +215,10 @@ export default {
                 .catch(error => {
                     if (error.response && error.response.status === 400 && error.response.data.message) {
                         this.errorMessage = error.response.data.message;
+                        this.closeModal();
                     } else {
                         this.errorMessage = "Произошла ошибка при добавлении записи.";
+                        this.closeModal();
                     }
                     console.error(error);
                 });
@@ -230,6 +235,7 @@ export default {
         editRecord() {
             if (!this.isValidTimeRange()) {
                 this.errorMessage = "Пожалуйста, убедитесь, что время начала меньше времени окончания и длительность не превышает 2 часов.";
+                this.closeModal();
                 return;
             }
 
@@ -289,7 +295,7 @@ export default {
         },
         formatDateTime(dateTimeStr) {
             const dateTime = new Date(dateTimeStr);
-            return `${dateTime.toLocaleDateString()} ${dateTime.toLocaleTimeString()}`;
+            return `${dateTime.toLocaleDateString()} ${dateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
         },
         isValidTimeRange() {
             const startTime = new Date(this.editedRecord.startTime).getTime();
@@ -299,11 +305,21 @@ export default {
                 return false; // startTime должно быть раньше endTime
             }
 
-            if (endTime - startTime > this.maxDuration) {
-                return false; // Длительность не должна превышать 2 часа
+            if (endTime - startTime !== this.maxDuration) {
+                return false; // Длительность не должна отличаться от 2-ух часов
             }
 
             return true;
+        },
+        formatTimeRange(startTime, endTime) {
+            const formattedStartTime = this.formatDateTime(startTime);
+            const formattedEndTime = this.formatDateTime(endTime);
+
+            return `${formattedStartTime} - ${formattedEndTime}`;
+        },
+        formatDoctorInfo(doctorId) {
+            const doctor = this.doctors.find(doc => doc.id === doctorId);
+            return doctor ? `${doctor.specialization} ${doctor.name}` : 'Неизвестно';
         },
     }
 };
